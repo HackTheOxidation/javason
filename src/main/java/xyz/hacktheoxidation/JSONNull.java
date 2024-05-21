@@ -8,7 +8,7 @@ public final class JSONNull implements JSON {
 
     @Override
     public String toString() {
-        return "JSONNull()";
+        return "JSONNull{}";
     }
 
     @Override

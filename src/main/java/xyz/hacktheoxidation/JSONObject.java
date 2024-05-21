@@ -20,8 +20,13 @@ public record JSONObject(Map<String, JSON> value) implements JSON {
     public String serialize() {
         StringBuilder acc = new StringBuilder();
         for (Map.Entry<String, JSON> entry : this.value.entrySet()) {
-            acc.append("\"").append(entry.getKey()).append("\"").append(": ").append(entry.getKey());
+            acc.append("\"").append(entry.getKey()).append("\"").append(": ").append(entry.getValue().serialize()).append(", ");
         }
+
+        if (!acc.isEmpty()) {
+            acc.delete(acc.length() - 2, acc.length());
+        }
+
         return "{" + acc + "}";
     }
 }

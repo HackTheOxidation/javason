@@ -9,7 +9,7 @@ public record JSONString(String value) implements JSON {
     @Override
     public String toString() {
         return "JSONString{" +
-                "value='" + value + '\'' +
+                "value=\"" + value + '"' +
                 '}';
     }
 

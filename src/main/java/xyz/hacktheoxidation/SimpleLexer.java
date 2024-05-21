@@ -30,15 +30,15 @@ public class SimpleLexer implements Lexer {
                 throw new SyntaxException("Syntax error - Reached EOF, expected: \"");
             }
         }
-        tokenPairs.add(new Pair(Tokens.STRING, this.jsonAsString.substring(begin, cursor)));
-        return cursor + 1;
+        tokenPairs.add(new Pair(Tokens.STRING, this.jsonAsString.substring(begin, cursor - 1)));
+        return cursor;
     }
 
     private int tokenizeObject(ArrayList<Pair> tokenPairs, int cursor) {
         tokenPairs.add(new Pair(Tokens.LCURLY, "{"));
         cursor++;
         while (this.jsonAsString.charAt(cursor) != '}') {
-            cursor = this.tokenizeJSON(tokenPairs, cursor);
+            cursor = this.tokenizeJSON(tokenPairs, cursor, '}');
 
             if (cursor >= this.jsonAsString.length()) {
                 throw new SyntaxException("Syntax error - Reached EOF, expected }");
@@ -50,8 +50,9 @@ public class SimpleLexer implements Lexer {
 
     private int tokenizeArray(ArrayList<Pair> tokenPairs, int cursor) {
         tokenPairs.add(new Pair(Tokens.LBRACE, "["));
-        while (this.jsonAsString.charAt(++cursor) != ']') {
-            cursor = this.tokenizeJSON(tokenPairs, cursor);
+        cursor++;
+        while (this.jsonAsString.charAt(cursor) != ']') {
+            cursor = this.tokenizeJSON(tokenPairs, cursor, ']');
 
             if (cursor >= this.jsonAsString.length()) {
                 throw new SyntaxException("Syntax error - Reached EOF, expected: ]");
@@ -113,8 +114,11 @@ public class SimpleLexer implements Lexer {
         return cursor + 4;
     }
 
-    private int tokenizeJSON(ArrayList<Pair> tokenPairs, int cursor) {
-        for (; cursor < this.jsonAsString.length(); cursor++) {
+    private int tokenizeJSON(ArrayList<Pair> tokenPairs, int cursor, char delimiter) {
+        while (cursor < this.jsonAsString.length()) {
+            if (this.jsonAsString.charAt(cursor) == delimiter)
+                break;
+
             cursor = switch (this.jsonAsString.charAt(cursor)) {
                 case '{' -> this.tokenizeObject(tokenPairs, cursor);
                 case '"' -> this.tokenizeString(tokenPairs, cursor);
@@ -140,11 +144,13 @@ public class SimpleLexer implements Lexer {
     @Override
     public ArrayList<Pair> tokenize() {
         var tokenPairs = new ArrayList<Pair>();
-        int cursor = this.skipWhitespace(0);
-        if (this.jsonAsString.charAt(cursor) != '{') {
-            throw new SyntaxException("Syntax error - Expected beginning of object '{', got: " + this.jsonAsString.charAt(cursor));
+        if (!this.jsonAsString.isEmpty()) {
+            int cursor = this.skipWhitespace(0);
+            if (this.jsonAsString.charAt(cursor) != '{') {
+                throw new SyntaxException("Syntax error - Expected beginning of object '{', got: " + this.jsonAsString.charAt(cursor));
+            }
+            this.tokenizeObject(tokenPairs, cursor);
         }
-        this.tokenizeObject(tokenPairs, cursor);
         return tokenPairs;
     }
 }

@@ -19,9 +19,15 @@ public record JSONArray(ArrayList<JSON> value) implements JSON {
     @Override
     public String serialize() {
         StringBuilder acc = new StringBuilder();
+
         for (JSON json : this.value) {
-            acc.append(json.toString()).append(",");
+            acc.append(json.serialize()).append(", ");
         }
+
+        if (!acc.isEmpty()) {
+            acc.delete(acc.length() - 2, acc.length());
+        }
+
         return "[" + acc + "]";
     }
 }
