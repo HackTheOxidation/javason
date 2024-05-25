@@ -1,10 +1,10 @@
 package xyz.hacktheoxidation;
 
 public sealed interface JSON permits JSONBool, JSONString, JSONNumber, JSONNull, JSONArray, JSONObject {
-    public JSONType getType();
+    JSONType getType();
 
     @Override
-    public String toString();
+    String toString();
 
-    public String serialize();
+    String serialize();
 }

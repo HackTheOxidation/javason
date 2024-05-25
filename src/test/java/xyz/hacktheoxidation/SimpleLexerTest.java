@@ -79,6 +79,21 @@ class SimpleLexerTest {
     }
 
     @Test
+    public void testTokenizeNegativeIntNumber() {
+        var lexer = new SimpleLexer("{ \"foo\": -1 }");
+        var expected = new ArrayList<>(
+                Arrays.asList(
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.STRING, "foo"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.NUMBER, "-1"),
+                        new Lexer.Pair(Tokens.RCURLY, "}")));
+        var actual = lexer.tokenize();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
     public void testTokenizeSimpleFloatNumber() {
         var lexer = new SimpleLexer("{ \"foo\": 42.3 }");
         var expected = new ArrayList<>(
@@ -87,6 +102,21 @@ class SimpleLexerTest {
                         new Lexer.Pair(Tokens.STRING, "foo"),
                         new Lexer.Pair(Tokens.COLON, ":"),
                         new Lexer.Pair(Tokens.NUMBER, "42.3"),
+                        new Lexer.Pair(Tokens.RCURLY, "}")));
+        var actual = lexer.tokenize();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testTokenizeNegativeFloatNumber() {
+        var lexer = new SimpleLexer("{ \"foo\": -42.3 }");
+        var expected = new ArrayList<>(
+                Arrays.asList(
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.STRING, "foo"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.NUMBER, "-42.3"),
                         new Lexer.Pair(Tokens.RCURLY, "}")));
         var actual = lexer.tokenize();
 
@@ -169,6 +199,56 @@ class SimpleLexerTest {
                         new Lexer.Pair(Tokens.COMMA, ","),
                         new Lexer.Pair(Tokens.BOOL, "true"),
                         new Lexer.Pair(Tokens.RBRACE, "]"),
+                        new Lexer.Pair(Tokens.RCURLY, "}")));
+        var actual = lexer.tokenize();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testTokenizeEmptyObject() {
+        var lexer = new SimpleLexer("{}");
+        var expected = new ArrayList<>(
+                Arrays.asList(
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.RCURLY, "}")));
+        var actual = lexer.tokenize();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testTokenizeNestedObject() {
+        var lexer = new SimpleLexer("{ \"obj\": { \"foo\": 42.3 } }");
+        var expected = new ArrayList<>(
+                Arrays.asList(
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.STRING, "obj"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.STRING, "foo"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.NUMBER, "42.3"),
+                        new Lexer.Pair(Tokens.RCURLY, "}"),
+                        new Lexer.Pair(Tokens.RCURLY, "}")));
+        var actual = lexer.tokenize();
+
+        assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testTokenizeFlatObject() {
+        var lexer = new SimpleLexer("{ \"foo\": true, \"bar\": 42.3 }");
+        var expected = new ArrayList<>(
+                Arrays.asList(
+                        new Lexer.Pair(Tokens.LCURLY, "{"),
+                        new Lexer.Pair(Tokens.STRING, "foo"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.BOOL, "true"),
+                        new Lexer.Pair(Tokens.COMMA, ","),
+                        new Lexer.Pair(Tokens.STRING, "bar"),
+                        new Lexer.Pair(Tokens.COLON, ":"),
+                        new Lexer.Pair(Tokens.NUMBER, "42.3"),
                         new Lexer.Pair(Tokens.RCURLY, "}")));
         var actual = lexer.tokenize();
 

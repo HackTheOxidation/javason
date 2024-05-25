@@ -59,7 +59,7 @@ public class RecursiveDescentParser implements Parser {
         }
 
         var arrayElements = new ArrayList<JSON>();
-        cursor = tokenPairs.removeFirst();
+        cursor = tokenPairs.getFirst();
         while (Objects.requireNonNull(cursor.token()) != Tokens.RBRACE) {
             if (tokenPairs.isEmpty()) {
                 throw new ParserException();
@@ -71,8 +71,10 @@ public class RecursiveDescentParser implements Parser {
                 tokenPairs.removeFirst();
             }
 
-            cursor = tokenPairs.removeFirst();
+            cursor = tokenPairs.getFirst();
         }
+
+        tokenPairs.removeFirst();
 
         return new JSONArray(arrayElements);
     }
@@ -88,7 +90,7 @@ public class RecursiveDescentParser implements Parser {
         }
 
         var objectFields = new HashMap<String, JSON>();
-        cursor = tokenPairs.removeFirst();
+        cursor = tokenPairs.getFirst();
         while (Objects.requireNonNull(cursor.token()) != Tokens.RCURLY) {
             if (tokenPairs.isEmpty()) {
                 throw new ParserException();
@@ -107,8 +109,10 @@ public class RecursiveDescentParser implements Parser {
                 tokenPairs.removeFirst();
             }
 
-            cursor = tokenPairs.removeFirst();
+            cursor = tokenPairs.getFirst();
         }
+
+        tokenPairs.removeFirst();
 
         return new JSONObject(objectFields);
     }

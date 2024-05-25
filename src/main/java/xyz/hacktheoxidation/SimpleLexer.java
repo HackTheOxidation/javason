@@ -65,6 +65,11 @@ public class SimpleLexer implements Lexer {
     private int tokenizeNumber(ArrayList<Pair> tokenPairs, int cursor) {
         boolean isDecimal = false;
         int begin = cursor;
+
+        if (this.jsonAsString.charAt(cursor) == '-') {
+            cursor++;
+        }
+
         for (;Character.isDigit(this.jsonAsString.charAt(cursor)) || (!isDecimal && this.jsonAsString.charAt(cursor) == '.'); cursor++) {
             if (this.jsonAsString.charAt(cursor) == '.') {
                 isDecimal = true;
@@ -133,7 +138,7 @@ public class SimpleLexer implements Lexer {
                     tokenPairs.add(new Pair(Tokens.COMMA, ","));
                     yield cursor + 1;
                 }
-                case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> this.tokenizeNumber(tokenPairs, cursor);
+                case '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> this.tokenizeNumber(tokenPairs, cursor);
                 case '\n', '\r', '\t', ' ' -> this.skipWhitespace(cursor);
                 default -> throw new SyntaxException("Syntax error - Unexpected token: " + this.jsonAsString.charAt(cursor));
             };
