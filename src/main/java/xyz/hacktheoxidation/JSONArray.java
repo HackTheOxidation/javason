@@ -1,6 +1,7 @@
 package xyz.hacktheoxidation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public record JSONArray(ArrayList<JSON> value) implements JSON {
 
@@ -29,5 +30,9 @@ public record JSONArray(ArrayList<JSON> value) implements JSON {
         }
 
         return "[" + acc + "]";
+    }
+
+    public static JSON of(Object... values) {
+        return new JSONArray(new ArrayList<>(Arrays.stream(values).map(JSON::of).toList()));
     }
 }

@@ -1,5 +1,6 @@
 package xyz.hacktheoxidation;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public record JSONObject(Map<String, JSON> value) implements JSON {
@@ -28,5 +29,25 @@ public record JSONObject(Map<String, JSON> value) implements JSON {
         }
 
         return "{" + acc + "}";
+    }
+
+    public static JSON of(Object... args) {
+        if (args.length % 2 != 0) {
+            throw new IllegalArgumentException("JSONObject.of() only takes an even number of parameters, got: " + args.length);
+        }
+
+        var mappings = new HashMap<String, JSON>();
+        for (int i = 0; i < args.length; i += 2) {
+            var key = args[i];
+            var value = args[i + 1];
+
+            if (!(key instanceof String)) {
+                throw new IllegalArgumentException("JSONObject.of() expects every odd argument to be a string.");
+            }
+
+            mappings.put((String) key, JSON.of(value));
+        }
+
+        return new JSONObject(mappings);
     }
 }
