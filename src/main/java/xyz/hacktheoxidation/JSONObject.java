@@ -31,23 +31,25 @@ public record JSONObject(Map<String, JSON> value) implements JSON {
         return "{" + acc + "}";
     }
 
-    public static JSON of(Object... args) {
-        if (args.length % 2 != 0) {
-            throw new IllegalArgumentException("JSONObject.of() only takes an even number of parameters, got: " + args.length);
+    public static JSONObject of() {
+        return new JSONObject(new HashMap<>());
+    }
+
+    public static JSONObject of(String key, Object value, Object... rest) {
+        if (rest.length % 2 != 0) {
+            throw new IllegalArgumentException("JSONObject.of() only takes an even number of arguments, got: " + rest.length);
         }
 
-        var mappings = new HashMap<String, JSON>();
-        for (int i = 0; i < args.length; i += 2) {
-            var key = args[i];
-            var value = args[i + 1];
+        if (rest.length == 0) {
+            return new JSONObject(new HashMap<>(Map.of(key, JSON.of(value))));
+        } else {
+            Object[] tail = new Object[rest.length - 2];
+            System.arraycopy(rest, 2, tail, 0, rest.length - 2);
 
-            if (!(key instanceof String)) {
-                throw new IllegalArgumentException("JSONObject.of() expects every odd argument to be a string.");
-            }
+            var jsonObject = JSONObject.of((String) rest[0], rest[1], tail);
+            jsonObject.value().put(key, JSON.of(value));
 
-            mappings.put((String) key, JSON.of(value));
+            return jsonObject;
         }
-
-        return new JSONObject(mappings);
     }
 }

@@ -15,4 +15,9 @@ public final class JSONNull implements JSON {
     public String serialize() {
         return "null";
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof JSONNull;
+    }
 }

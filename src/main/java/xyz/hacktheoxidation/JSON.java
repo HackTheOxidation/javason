@@ -15,6 +15,7 @@ public sealed interface JSON permits JSONBool, JSONString, JSONNumber, JSONNull,
             case Integer i -> new JSONNumber(i);
             case Double d -> new JSONNumber(d);
             case String s -> new JSONString(s);
+            case JSON j -> j;
             default -> throw new IllegalArgumentException("Cannot convert unexpected value to JSON: " + value);
         };
     }
