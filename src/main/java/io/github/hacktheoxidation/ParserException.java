@@ -1,4 +1,4 @@
-package xyz.hacktheoxidation;
+package io.github.hacktheoxidation;
 
 public class ParserException extends RuntimeException {
 }

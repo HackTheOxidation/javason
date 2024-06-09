@@ -1,4 +1,4 @@
-package xyz.hacktheoxidation;
+package io.github.hacktheoxidation;
 
 public sealed interface JSON permits JSONBool, JSONString, JSONNumber, JSONNull, JSONArray, JSONObject {
     JSONType getType();

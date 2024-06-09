@@ -1,4 +1,4 @@
-package xyz.hacktheoxidation;
+package io.github.hacktheoxidation;
 
 public record JSONString(String value) implements JSON {
     @Override

@@ -1,4 +1,4 @@
-package xyz.hacktheoxidation;
+package io.github.hacktheoxidation;
 
 public class SyntaxException extends RuntimeException {
     private final String message;

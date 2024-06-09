@@ -1,4 +1,4 @@
-package xyz.hacktheoxidation;
+package io.github.hacktheoxidation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
