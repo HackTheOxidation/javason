@@ -8,7 +8,15 @@ This project uses the `maven` build system for compilation, testing, packaging, 
 
 ### Installation
 
-(*WIP*: installation from maven central repository)
+As a dependency from maven central, put this in your `pom.xml`:
+
+```xml
+<dependency>
+    <groupId>io.github.hacktheoxidation</groupId>
+    <artifactId>javason</artifactId>
+    <version>0.1.1</version>
+</dependency>
+```
 
 ### Development
 
