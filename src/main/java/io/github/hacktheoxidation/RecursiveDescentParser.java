@@ -2,8 +2,14 @@ package io.github.hacktheoxidation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
+/**
+ * Implementation of a json parser using the classic recursive
+ * descent parsing technique. It makes use of dependency injection such
+ * that the user is free to choose whatever lexer they see fit.
+ */
 public class RecursiveDescentParser implements Parser {
     private final Lexer lexer;
 
@@ -12,11 +18,17 @@ public class RecursiveDescentParser implements Parser {
     }
 
     @Override
-    public ArrayList<Lexer.Pair> getTokens() {
+    public List<Lexer.Pair> getTokens() {
         return lexer.tokenize();
     }
 
-    private JSONString parseString(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse a string and wrap it in a JSON object.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for strings (indicating an error in the lexer).
+     * @return a parsed string wrapped in a JSON object.
+     */
+    private JSONString parseString(List<Lexer.Pair> tokenPairs) {
         var cursor = tokenPairs.removeFirst();
         if (Objects.requireNonNull(cursor.token()) != Tokens.STRING) {
             throw new ParserException();
@@ -24,7 +36,13 @@ public class RecursiveDescentParser implements Parser {
         return new JSONString(cursor.value());
     }
 
-    private JSONNumber parseNumber(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse a number and wrap it in a JSON object.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for numbers (indicating an error in the lexer).
+     * @return a parsed number wrapped in a JSON object.
+     */
+    private JSONNumber parseNumber(List<Lexer.Pair> tokenPairs) {
         var cursor = tokenPairs.removeFirst();
         if (Objects.requireNonNull(cursor.token()) != Tokens.NUMBER) {
             throw new ParserException();
@@ -32,7 +50,13 @@ public class RecursiveDescentParser implements Parser {
         return new JSONNumber(Double.parseDouble(cursor.value()));
     }
 
-    private JSONBool parseBool(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse a boolean and wrap it in a JSON object.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for booleans (indicating an error in the lexer).
+     * @return a parsed boolean wrapped in a JSON object.
+     */
+    private JSONBool parseBool(List<Lexer.Pair> tokenPairs) {
         var cursor = tokenPairs.removeFirst();
         if (Objects.requireNonNull(cursor.token()) != Tokens.BOOL) {
             throw new ParserException();
@@ -40,7 +64,13 @@ public class RecursiveDescentParser implements Parser {
         return new JSONBool(cursor.value().equals("true"));
     }
 
-    private JSONNull parseNull(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse a null and wrap it in a JSON object.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for null (indicating an error in the lexer).
+     * @return a parsed null wrapped in a JSON object.
+     */
+    private JSONNull parseNull(List<Lexer.Pair> tokenPairs) {
         var cursor = tokenPairs.removeFirst();
         if (Objects.requireNonNull(cursor.token()) != Tokens.NULL) {
             throw new ParserException();
@@ -48,7 +78,14 @@ public class RecursiveDescentParser implements Parser {
         return new JSONNull();
     }
 
-    private JSONArray parseArray(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse an array and wrap it in a JSON object. It uses other parser
+     * utility functions to recursively parse the elements of the array.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for arrays (indicating an error in the lexer).
+     * @return a parsed array wrapped in a JSON object.
+     */
+    private JSONArray parseArray(List<Lexer.Pair> tokenPairs) {
         if (tokenPairs.isEmpty()) {
             throw new ParserException();
         }
@@ -79,7 +116,14 @@ public class RecursiveDescentParser implements Parser {
         return new JSONArray(arrayElements);
     }
 
-    private JSONObject parseObject(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse an object and wrap it in a JSON object. It uses other parser
+     * utility functions to recursively parse the key-value pairs of the object.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules for objects (indicating an error in the lexer).
+     * @return a parsed object wrapped in a JSON object.
+     */
+    private JSONObject parseObject(List<Lexer.Pair> tokenPairs) {
         if (tokenPairs.isEmpty()) {
             throw new ParserException();
         }
@@ -117,7 +161,15 @@ public class RecursiveDescentParser implements Parser {
         return new JSONObject(objectFields);
     }
 
-    private JSON parseAnyValue(ArrayList<Lexer.Pair> tokenPairs) {
+    /**
+     * Attempts to parse the next token in the sequence as a json value by acting as
+     * a dispatcher to the other parser utility methods. It has the responsibility to
+     * determine what value is most appropriate to try and parse.
+     * @param tokenPairs tokenizer result to consume.
+     * @throws ParserException if the sequence of tokens does not match the json syntax rules (indicating an error in the lexer).
+     * @return a parsed value wrapped in a JSON object.
+     */
+    private JSON parseAnyValue(List<Lexer.Pair> tokenPairs) {
         return switch (tokenPairs.getFirst().token()) {
             case BOOL -> this.parseBool(tokenPairs);
             case NULL -> this.parseNull(tokenPairs);

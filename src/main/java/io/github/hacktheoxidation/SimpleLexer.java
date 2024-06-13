@@ -1,14 +1,31 @@
 package io.github.hacktheoxidation;
 
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Simple lexer is a basic implementation of a lexer that accepts json as a string
+ * and tokenizes it. The lexer is immutable and deterministic in the sense that
+ * it retains a copy of the input which cannot be changed and the tokenization
+ * process does not change the internal state of the lexer. To "change" the input,
+ * one must create a new instance of the lexer.
+ */
 public class SimpleLexer implements Lexer {
+    /**
+     * This is the input that will be tokenized.
+     */
     private final String jsonAsString;
 
     public SimpleLexer(String jsonAsString) {
         this.jsonAsString = jsonAsString;
     }
 
+    /**
+     * Utility method that moves the cursor of the lexer to the index of the next non-whitespace
+     * character. Whitespace is defined as the space, tab, newline and carriage return characters.
+     * @param cursor current index of the lexer in the input.
+     * @return the new position of the cursor.
+     */
     private int skipWhitespace(int cursor) {
         while (cursor < this.jsonAsString.length()) {
             switch (this.jsonAsString.charAt(cursor)) {
@@ -23,6 +40,13 @@ public class SimpleLexer implements Lexer {
         return cursor;
     }
 
+    /**
+     * Utility method that attempts to parse a json string.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed a string.
+     */
     private int tokenizeString(ArrayList<Pair> tokenPairs, int cursor) {
         int begin = ++cursor;
         while (this.jsonAsString.charAt(cursor++) != '"') {
@@ -34,6 +58,13 @@ public class SimpleLexer implements Lexer {
         return cursor;
     }
 
+    /**
+     * Utility method that attempts to parse a json object.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed an object.
+     */
     private int tokenizeObject(ArrayList<Pair> tokenPairs, int cursor) {
         tokenPairs.add(new Pair(Tokens.LCURLY, "{"));
         cursor++;
@@ -48,6 +79,13 @@ public class SimpleLexer implements Lexer {
         return cursor + 1;
     }
 
+    /**
+     * Utility method that attempts to parse a json array.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed an array.
+     */
     private int tokenizeArray(ArrayList<Pair> tokenPairs, int cursor) {
         tokenPairs.add(new Pair(Tokens.LBRACE, "["));
         cursor++;
@@ -62,6 +100,13 @@ public class SimpleLexer implements Lexer {
         return cursor + 1;
     }
 
+    /**
+     * Utility method that attempts to parse a json number.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed a number.
+     */
     private int tokenizeNumber(ArrayList<Pair> tokenPairs, int cursor) {
         boolean isDecimal = false;
         int begin = cursor;
@@ -74,17 +119,20 @@ public class SimpleLexer implements Lexer {
             if (this.jsonAsString.charAt(cursor) == '.') {
                 isDecimal = true;
             }
-
-            if (cursor >= this.jsonAsString.length()) {
-                throw new SyntaxException("Syntax error - Reached EOF, attempted to scan a number");
-            }
         }
 
         tokenPairs.add(new Pair(Tokens.NUMBER, this.jsonAsString.substring(begin, cursor)));
         return cursor;
     }
 
-    private int tokenizeBool(ArrayList<Pair> tokenPairs, int cursor) {
+    /**
+     * Utility method that attempts to parse a json bool.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed a bool.
+     */
+    private int tokenizeBool(ArrayList<Pair> tokenPairs, final int cursor) {
         if (cursor + 4 >= this.jsonAsString.length()) {
             throw new SyntaxException("Syntax error - Reached EOF, attempted to scan bool: true");
         }
@@ -106,7 +154,14 @@ public class SimpleLexer implements Lexer {
         throw new SyntaxException("Syntax error - Failed to match value, expected a bool");
     }
 
-    private int tokenizeNull(ArrayList<Pair> tokenPairs, int cursor) {
+    /**
+     * Utility method that attempts to parse a json null.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @return The new position of the cursor having successfully parsed a null.
+     */
+    private int tokenizeNull(ArrayList<Pair> tokenPairs, final int cursor) {
         if (cursor + 4 >= this.jsonAsString.length()) {
             throw new SyntaxException("Syntax error - Failed to match value, expected null");
         }
@@ -119,6 +174,15 @@ public class SimpleLexer implements Lexer {
         return cursor + 4;
     }
 
+    /**
+     * Utility method that acts as a dispatcher to the other utility methods. It is
+     * responsible for determining what type of json value to try and parse next.
+     * @param tokenPairs internal representation of tokenized input.
+     * @param cursor current index of the lexer in the input.
+     * @throws SyntaxException if the input does not match the syntax rules.
+     * @param delimiter specifies what character to stop at.
+     * @return The new position of the cursor having successfully parsed some json value.
+     */
     private int tokenizeJSON(ArrayList<Pair> tokenPairs, int cursor, char delimiter) {
         while (cursor < this.jsonAsString.length()) {
             if (this.jsonAsString.charAt(cursor) == delimiter)
@@ -147,10 +211,10 @@ public class SimpleLexer implements Lexer {
     }
 
     @Override
-    public ArrayList<Pair> tokenize() {
+    public List<Pair> tokenize() {
         var tokenPairs = new ArrayList<Pair>();
         if (!this.jsonAsString.isEmpty()) {
-            int cursor = this.skipWhitespace(0);
+            final int cursor = this.skipWhitespace(0);
             if (this.jsonAsString.charAt(cursor) != '{') {
                 throw new SyntaxException("Syntax error - Expected beginning of object '{', got: " + this.jsonAsString.charAt(cursor));
             }

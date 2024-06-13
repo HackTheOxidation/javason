@@ -1,9 +1,9 @@
 package io.github.hacktheoxidation;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-public record JSONArray(ArrayList<JSON> value) implements JSON {
+public record JSONArray(List<JSON> value) implements JSON {
 
     @Override
     public JSONType getType() {
@@ -33,6 +33,6 @@ public record JSONArray(ArrayList<JSON> value) implements JSON {
     }
 
     public static JSON of(Object... values) {
-        return new JSONArray(new ArrayList<>(Arrays.stream(values).map(JSON::of).toList()));
+        return new JSONArray(Arrays.stream(values).map(JSON::of).toList());
     }
 }
